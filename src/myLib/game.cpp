@@ -113,7 +113,7 @@ void Game::drawTile()
             Tile tile = map.tileList[i][j];
             tile.sprite.setTexture(getTexture(tile.getSpriteValue()));
             tile.sprite.setPosition(tile.getPosX(), tile.getPosY());
-            // tile.sprite.scale(sf::Vector2f((float)pWindow->getSize().x/getTexture(tile.getSpriteValue()).getSize().x, (float)pWindow->getSize().y/getTexture(tile.getSpriteValue()).getSize().y));
+            tile.sprite.scale(sf::Vector2f((float)pWindow->getSize().x/getTexture(tile.getSpriteValue()).getSize().x, (float)pWindow->getSize().y/getTexture(tile.getSpriteValue()).getSize().y));
             
             pWindow->draw(tile.sprite);
         }
@@ -326,3 +326,29 @@ void Game::errorLoadingSprite()
 {
     std::cout << "error loading sprite " << std::endl;
 }
+
+/*
+
+
+
+sf::Texture weapon_tex;
+caseBackground.loadFromFile("src/img/spriteSheet.png", sf::IntRect(32,0,32,32));
+
+sf::Texture blood_tex;
+caseFiveColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(32, 32, 32, 32));
+
+sf::RectangleShape weapon_slot;
+weapon_slot.setPosition(sf::Vector2f(0, 0));
+weapon_slot.setSize(sf::Vector2f(80, 80));
+
+sf::RectangleShape weapon_slot_overlay;
+weapon_slot_overlay.setPosition(sf::Vector2f(0, 0));
+weapon_slot_overlay.setSize(sf::Vector2f(80, 80));
+weapon_slot_overlay.setFillColor(sf::Color(255, 255, 255, 128)); //128 is half transparency
+
+weapon_slot.setTexture(&weapon_tex);
+weapon_slot_overlay.setTexture(&blood_tex);
+
+window.draw(weapon_slot);
+
+*/
