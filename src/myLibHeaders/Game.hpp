@@ -5,7 +5,7 @@
  * Version:         V-1.0
 */
 
-#include "../myLibHeaders//Map.hpp"
+#include "../myLibHeaders/Map.hpp"
 #include <SFML/Graphics/Texture.hpp>
 #include <string>
 
@@ -14,6 +14,8 @@ class Game
 {
     private:
         Map map;
+
+        sf::Texture EMPTY_TEXTURE;
 
         // Numbers white
         sf::Texture zero;
@@ -45,24 +47,33 @@ class Game
         sf::Texture bombExploded;
 
         // Cases
-        sf::Texture caseHiden;
+        sf::Texture caseHide;
         sf::Texture caseHover;
         sf::Texture caseBackground;
 
         // Troll
         sf::Texture gyarados;
 
-        void errorLoadingSprite();
-        void loadTextures();
-        sf::Texture getTexture(caseSpriteValue tileValue);
+        float spriteScaleValue;
 
     public:
+        const int WIDTH = 2100, HEIGHT = 1500;
+        const short PADDING_WINDOW_Y = 100;
+        const short TEXTURE_SIZE_X = 32, TEXTURE_SIZE_Y = 32;
+        short padding_WindowX = 300;
+
         Game();
         ~Game();
 
         sf::RenderWindow* pWindow;
 
         void drawTile();
+
         void inputEvent();
 
+        void setScaleValue();
+        void setTileTexture(Tile* tile);
+
+        void loadTextures();
+        void errorLoadingSprite();
 };

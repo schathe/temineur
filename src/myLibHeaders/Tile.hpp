@@ -15,7 +15,7 @@ enum caseState
 
 enum caseSpriteValue
 {
-    CaseHidden,
+    CaseHide,
     CaseBackground,
     CaseHover,
     CaseOneColored,

@@ -5,25 +5,28 @@
  * Version:         V-1.0
 */
 
-#include "../myLibHeaders/game.hpp"
+#include "../myLibHeaders/Game.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Window.hpp>
+#include <SFML/Window/WindowStyle.hpp>
+#include <cstddef>
 #include <iostream>
+#include <ostream>
 #include <string>
 
-
-
-const int WIDTH = 2100, HEIGHT = 1500;
-const short TEXTURE_SIZE_X = 32, TEXTURE_SIZE_Y = 32;
 
 Game::Game()
 {
     // Creation of the window, the textures and the sprites
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Démineur_V1");
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Démineur_V1", sf::Style::Close);
+    // sf::Style::Close;    -> to block the resize of the window
+    // sf::Style::Titlebar; -> to block the resize AND disable the x to close the window WITH impossibilty to alt + f4
     sf::Texture texture;
     sf::Texture textureBomba;
     sf::Sprite sprite;
@@ -32,10 +35,13 @@ Game::Game()
 
     pWindow = &window;
 
-    map = Map();
-    map.show();
-
+    setScaleValue();
     loadTextures();
+
+    map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+
+    
+    // map.show();
 
     // Loading of the textures for the sprites of the game
     //  to load a texture from a sprite sheet:
@@ -52,11 +58,15 @@ Game::Game()
 
     // Filling the windows with ONE sprite scaled the x and y of the window
     sprite.setTexture(texture);
+    // sprite.setTexture(getTexture(CaseBackground));
     bomba.setTexture(textureBomba);
+
     sprite.scale(sf::Vector2f((float)window.getSize().x/texture.getSize().x, (float)window.getSize().y/texture.getSize().y));
+    bomba.scale(sf::Vector2f(5,5));
     
     sprite.setPosition(sf::Vector2f(0.f, 0.f)); // absolute position
     bomba.setPosition(sf::Vector2f(10.f, 10.f)); // absolute position
+
 
 /*  DEBUG CODE, USED TO GET THE SIZE OF THE SPRITE LOADED (X;Y)
 
@@ -64,44 +74,41 @@ Game::Game()
     std::cout << "y: " << texture.getSize().y << std::endl;
 */
 
+    sf::Clock clock;
+
+
     // Main loop of the program
     while (window.isOpen())
     {
-        // Clear the window before doing anything on the sprites and textures
-        window.clear();
 
-        // Draw the sprites on the window, the position of the sprites still need to be fix...
-        //  (Here it's correctly set because it's on a corner and the size is based on the window's one)
-        window.draw(sprite);
-        drawTile();
-        //window.draw(bomba);
-        
-        // Get every events appening on the window (click/keyboard/windows rezise/...)
-        sf::Event event;
-        while (window.pollEvent(event))
+        if(clock.getElapsedTime().asMilliseconds() >= 1000/60)
         {
-            // Get the close window event (every event are tracked like this)
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }
+            sf::Time elapsed = clock.restart();
+
+
+            // Clear the window before doing anything with the sprites
+            window.clear();
+
+            // Draw the sprites on the window, the position of the sprites still need to be fix...
+            //  (Here it's correctly set because it's on a corner and the size is based on the window's one)
+            // window.draw(sprite);
+
+            drawTile();
+            
+            // window.draw(bomba);
+            
+            // Get every events appening on the window (click/keyboard/windows rezise/closed/...)
+            inputEvent();
+
+            // Display the window wich have every sprites on it, need to be the last line of code of the main loop !!
+            window.display();
         }
-
-
-        // Display the window wich have every sprites on it, need to be the last line of code of the main loop !!
-        window.display();
     }
 }
 
 Game::~Game()
 {
-
-}
-
-
-void Game::inputEvent()
-{
-
+    
 }
 
 void Game::drawTile()
@@ -111,18 +118,142 @@ void Game::drawTile()
         for (int j = 0; j < map.tileList[i].size(); j++)
         {
             Tile tile = map.tileList[i][j];
-            tile.sprite.setTexture(getTexture(tile.getSpriteValue()));
-            tile.sprite.setPosition(tile.getPosX(), tile.getPosY());
-            tile.sprite.scale(sf::Vector2f((float)pWindow->getSize().x/getTexture(tile.getSpriteValue()).getSize().x, (float)pWindow->getSize().y/getTexture(tile.getSpriteValue()).getSize().y));
+
+            setTileTexture(&tile);
+            tile.sprite.setPosition(tile.getPosX(),tile.getPosY());
+            tile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
             
             pWindow->draw(tile.sprite);
+            
         }
+    }
+}
+
+void Game::inputEvent()
+{
+    sf::Event event;
+    while (pWindow->pollEvent(event))
+    {
+        // Get the close window event (every event are tracked like this)
+        if (event.type == sf::Event::Closed)
+        {
+            pWindow->close();
+        }
+
+        if(event.type == sf::Event::KeyPressed){
+            if (event.key.code == sf::Keyboard::Space)
+            {
+                map.reset();
+                map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+            }
+        }
+    }
+}
+
+void Game::setScaleValue()
+{
+    float screenHeight = pWindow->getSize().y, screenWidth = pWindow->getSize().x;
+
+    // (float)window.getSize().x/texture.getSize().x
+
+    spriteScaleValue = (screenHeight - PADDING_WINDOW_Y) / TEXTURE_SIZE_Y / map.mapSizeY;
+
+    padding_WindowX = screenWidth - (TEXTURE_SIZE_X * map.mapSizeX * spriteScaleValue);
+
+    std::cout << spriteScaleValue << std::endl;
+
+    // effectué les calcules pour savoir quelle taille de scale faire...
+}
+
+void Game::setTileTexture(Tile* tile)
+{
+    switch (tile->getSpriteValue()) {
+    case CaseHide:
+        tile->sprite.setTexture(caseHide);
+        break;
+    case CaseBackground:
+        tile->sprite.setTexture(caseBackground);
+        break;
+    case CaseHover:
+        tile->sprite.setTexture(caseHover);
+        break;
+    case CaseOneColored:
+        tile->sprite.setTexture(caseOneColored);
+        break;
+    case CaseTwoColored:
+        tile->sprite.setTexture(caseTwoColored);
+        break;
+    case CaseThreeColored:
+        tile->sprite.setTexture(caseThreeColored);
+        break;
+    case CaseFourColored:
+        tile->sprite.setTexture(caseFourColored);
+        break;
+    case CaseFiveColored:
+        tile->sprite.setTexture(caseFiveColored);
+        break;
+    case CaseSixColored:
+        tile->sprite.setTexture(caseSixColored);
+        break;
+    case CaseSevenColored:
+        tile->sprite.setTexture(caseSevenColored);
+        break;
+    case CaseEightColored:
+        tile->sprite.setTexture(caseEightColored);
+        break;
+    case CaseNineColored:
+        tile->sprite.setTexture(caseNineColored);
+        break;
+    case Zero:
+        tile->sprite.setTexture(zero);
+        break;
+    case One:
+        tile->sprite.setTexture(one);
+        break;
+    case Two:
+        tile->sprite.setTexture(two);
+        break;
+    case Three:
+        tile->sprite.setTexture(three);
+        break;
+    case Four:
+        tile->sprite.setTexture(four);
+        break;
+    case Five:
+        tile->sprite.setTexture(five);
+        break;
+    case Six:
+        tile->sprite.setTexture(six);
+        break;
+    case Seven:
+        tile->sprite.setTexture(seven);
+        break;
+    case Eight:
+        tile->sprite.setTexture(eight);
+        break;
+    case Nine:
+        tile->sprite.setTexture(nine);
+        break;
+    case Bomb:
+        tile->sprite.setTexture(bomb);
+        break;
+    case BombExploded:
+        tile->sprite.setTexture(bombExploded);
+        break;
+    case Flag:
+        tile->sprite.setTexture(flag);
+        break;
+    case FlagMissed:
+        tile->sprite.setTexture(flagMissed);
+        break;
+    default:
+        tile->sprite.setTexture(gyarados);
     }
 }
 
 void Game::loadTextures()
 {
-    if (!caseHiden.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseHide.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
     {
         errorLoadingSprite();
     }
@@ -230,125 +361,9 @@ void Game::loadTextures()
     {
         errorLoadingSprite();
     }
-
-
-}
-
-sf::Texture Game::getTexture(caseSpriteValue tileValue)
-{
-    sf::Texture texture;
-    switch (tileValue) {
-    case CaseHidden:
-        texture = caseHiden;
-        break;
-    case CaseBackground:
-        texture = caseBackground;
-        break;
-    case CaseHover:
-        texture = caseHover;
-        break;
-    case CaseOneColored:
-        texture = caseOneColored;
-        break;
-    case CaseTwoColored:
-        texture = caseTwoColored;
-        break;
-    case CaseThreeColored:
-        texture = caseThreeColored;
-        break;
-    case CaseFourColored:
-        texture = caseFourColored;
-        break;
-    case CaseFiveColored:
-        texture = caseFiveColored;
-        break;
-    case CaseSixColored:
-        texture = caseSixColored;
-        break;
-    case CaseSevenColored:
-        texture = caseSevenColored;
-        break;
-    case CaseEightColored:
-        texture = caseEightColored;
-        break;
-    case CaseNineColored:
-        texture = caseNineColored;
-        break;
-    case Zero:
-        texture = zero;
-        break;
-    case One:
-        texture = one;
-        break;
-    case Two:
-        texture = two;
-        break;
-    case Three:
-        texture = three;
-        break;
-    case Four:
-        texture = four;
-        break;
-    case Five:
-        texture = five;
-        break;
-    case Six:
-        texture = six;
-        break;
-    case Seven:
-        texture = seven;
-        break;
-    case Eight:
-        texture = eight;
-        break;
-    case Nine:
-        texture = nine;
-        break;
-    case Bomb:
-        texture = bomb; 
-        break;
-    case BombExploded:
-        texture = bombExploded;
-        break;
-    case Flag:
-        texture = flag;
-        break;
-    case FlagMissed:
-        texture = flagMissed;
-        break;
-    default:
-        texture = gyarados;
-    }
-    return texture;
 }
 
 void Game::errorLoadingSprite()
 {
     std::cout << "error loading sprite " << std::endl;
 }
-
-/*
-
-
-
-sf::Texture weapon_tex;
-caseBackground.loadFromFile("src/img/spriteSheet.png", sf::IntRect(32,0,32,32));
-
-sf::Texture blood_tex;
-caseFiveColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(32, 32, 32, 32));
-
-sf::RectangleShape weapon_slot;
-weapon_slot.setPosition(sf::Vector2f(0, 0));
-weapon_slot.setSize(sf::Vector2f(80, 80));
-
-sf::RectangleShape weapon_slot_overlay;
-weapon_slot_overlay.setPosition(sf::Vector2f(0, 0));
-weapon_slot_overlay.setSize(sf::Vector2f(80, 80));
-weapon_slot_overlay.setFillColor(sf::Color(255, 255, 255, 128)); //128 is half transparency
-
-weapon_slot.setTexture(&weapon_tex);
-weapon_slot_overlay.setTexture(&blood_tex);
-
-window.draw(weapon_slot);
-
-*/

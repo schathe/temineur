@@ -5,6 +5,6 @@
  * Version:         V-1.0
 */
 
-#include "game.hpp"
+#include "Game.hpp"
 #include "Map.hpp"
 #include "Tile.hpp"
