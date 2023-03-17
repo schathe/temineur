@@ -1,21 +1,25 @@
 /**
  * Creation date:   2022-12-12
  * Creator:         Schathe (Théo Schaffner)
- * Description:     This file is use to put the declarations of the functions of the program.
+ * Description:     This file is use to put the declarations of the function and the variables of game.cpp.
  * Version:         V-1.0
 */
 
-#include "../myLibHeaders/Map.hpp"
-#include <SFML/Graphics/Texture.hpp>
-#include <string>
+#pragma once
 
+#include "../myLibHeaders/Map.hpp"
 
 class Game
 {
     private:
         Map map;
+        float spriteScaleValue;
+        const int WIDTH = 2100, HEIGHT = 1500;
+        const short PADDING_WINDOW_Y = 100;
+        const short TEXTURE_SIZE_X = 32, TEXTURE_SIZE_Y = 32;
+        short padding_WindowX = 300;
 
-        sf::Texture EMPTY_TEXTURE;
+        /* TEXTURES OF THE GAME */
 
         // Numbers white
         sf::Texture zero;
@@ -54,26 +58,22 @@ class Game
         // Troll
         sf::Texture gyarados;
 
-        float spriteScaleValue;
-
     public:
-        const int WIDTH = 2100, HEIGHT = 1500;
-        const short PADDING_WINDOW_Y = 100;
-        const short TEXTURE_SIZE_X = 32, TEXTURE_SIZE_Y = 32;
-        short padding_WindowX = 300;
-
         Game();
         ~Game();
 
         sf::RenderWindow* pWindow;
 
-        void drawTile();
+        void displayTile();
 
         void inputEvent();
 
         void setScaleValue();
         void setTileTexture(Tile* tile);
 
+        void test();
+
+        // Functions called only once
         void loadTextures();
         void errorLoadingSprite();
 };

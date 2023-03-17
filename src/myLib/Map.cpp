@@ -1,12 +1,11 @@
+/**
+ * Creation date:   2022-12-12
+ * Creator:         Schathe (Théo Schaffner)
+ * Description:     This file is made to contain all the functions and the modification of the map layer.
+ * Version:         V-1.0
+*/
+
 #include "../myLibHeaders/Map.hpp"
-#include <iostream>
-#include <ostream>
-#include <vector>
-
-Map::Map()
-{
-
-}
 
 Map::Map(float spriteScaleValue, int paddingX, int paddingY)
 {
@@ -17,8 +16,8 @@ Map::Map(float spriteScaleValue, int paddingX, int paddingY)
         for (int j = 0; j < mapSizeX; j++)
         {
             ListX.push_back(Tile(((float)paddingX/2 + j * 32 * spriteScaleValue), ((float)paddingY/2 + i * 32 * spriteScaleValue)));
-            // std::cout << "state: " << ListX[j].getState() << " value: " << ListX[j].getValue() << std::endl;
         }
+
         tileList.push_back(ListX);
     }
 }
@@ -47,4 +46,13 @@ void Map::reset()
     {
         tileList.pop_back();
     }
+}
+
+void Map::test()
+{
+    std::cout << "bombNumber: " << bombNumber << std::endl;
+    std::cout << "mapSizeX: " << mapSizeX << std::endl;
+    std::cout << "mapSizeY: " << mapSizeY << std::endl;
+    std::cout << "tileList: " << std::endl;
+    show();
 }

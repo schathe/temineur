@@ -1,16 +1,22 @@
+/**
+ * Creation date:   2022-12-12
+ * Creator:         Schathe (Théo Schaffner)
+ * Description:     This file is used to define the funcitons, enumerations and the variables of the tile.cpp.
+ * Version:         V-1.0
+*/
+
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Sprite.hpp>
-#include <SFML/Graphics/Texture.hpp>
-#include <string>
+
+#include <iostream>
 
 enum caseState
 {
     Hide = 0,
     Hover,
     Pressed,
-    Draw
+    Displayed
 };
 
 enum caseSpriteValue
@@ -68,8 +74,6 @@ class Tile
 
         void setValue(int newValue = 0);
         void setState(int newState = 0);
-        void setPosX();
-        void setPosY();
 
         void test();
 };
