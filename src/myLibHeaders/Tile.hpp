@@ -72,7 +72,9 @@ class Tile
         int getPosX();
         int getPosY();
 
-        void setValue(int newValue = 0);
+        bool isBomb();
+
+        void setValue(caseSpriteValue newValue = Empty);
         void setState(int newState = 0);
 
         void test();

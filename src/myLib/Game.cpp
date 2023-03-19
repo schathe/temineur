@@ -6,6 +6,10 @@
 */
 
 #include "../myLibHeaders/Game.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 #include <cstdlib>
 
 Game::Game()
@@ -14,6 +18,7 @@ Game::Game()
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Démineur_V1", sf::Style::Close);
     // sf::Style::Close;    -> to block the resize of the window
     // sf::Style::Titlebar; -> to block the resize AND disable the x to close the window WITH impossibilty to alt + f4
+    window.setPosition(sf::Vector2i(450, 200));
 
     // Set the pointer of the window to use it in functions wihout passing it throug parameters
     pWindow = &window;
@@ -34,7 +39,7 @@ Game::Game()
         // Update game logic every 25th of a second
         if(clock.getElapsedTime().asMilliseconds() >= 1000/25)
         {
-            sf::Time elapsed = clock.restart();
+            clock.restart();
 
             // Clear the window before doing anything with the sprites
             window.clear();
@@ -43,7 +48,7 @@ Game::Game()
             displayTile();
                         
             // Get every events appening on the window (click/keyboard/windows rezise/closed/...)
-            inputEvent();
+            inputEvent(window);
 
             // Display the window wich have every sprites on it, need to be the last line of code of the main loop !!
             window.display();
@@ -58,13 +63,15 @@ Game::~Game()
 
 void Game::displayTile()
 {
-    for (int i = 0; i < map.tileList.size(); i++)
+    for (unsigned long i = 0; i < map.tileList.size(); i++)
     {
-        for (int j = 0; j < map.tileList[i].size(); j++)
+        for (unsigned long j = 0; j < map.tileList[i].size(); j++)
         {
             Tile tile = map.tileList[i][j];
 
-            if (tile.getSpriteValue() >= CaseOneColored  && tile.getSpriteValue() <= CaseNineColored )
+            caseSpriteValue spriteValue = tile.getSpriteValue();
+
+            if (spriteValue >= CaseOneColored  && spriteValue <= CaseNineColored )
             {
                 Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
                 backgroundTile.setValue(CaseBackground);
@@ -74,7 +81,7 @@ void Game::displayTile()
 
                 pWindow->draw(backgroundTile.sprite);
             }
-            else if (tile.getSpriteValue() == Bomb || tile.getSpriteValue() == BombExploded || tile.getSpriteValue() == FlagMissed)
+            else if (spriteValue == Bomb || spriteValue == BombExploded || spriteValue == FlagMissed || spriteValue == Empty)
             {
                 Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
                 backgroundTile.setValue(CaseBackground);
@@ -84,7 +91,7 @@ void Game::displayTile()
 
                 pWindow->draw(backgroundTile.sprite);
             }
-            else if (tile.getSpriteValue() == Flag)
+            else if (spriteValue == Flag)
             {
                 Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
                 backgroundTile.setValue(CaseHover);
@@ -104,7 +111,7 @@ void Game::displayTile()
     }
 }
 
-void Game::inputEvent()
+void Game::inputEvent(sf::RenderWindow &renderWindow)
 {
     sf::Event event;
     while (pWindow->pollEvent(event))
@@ -115,12 +122,27 @@ void Game::inputEvent()
             pWindow->close();
         }
 
-        if(event.type == sf::Event::KeyPressed){
-            if (event.key.code == sf::Keyboard::Space)
+        if (event.type == sf::Event::KeyPressed)
+        {
+            switch (event.key.code) 
             {
-                map.reset();
-                map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+                case sf::Keyboard::Space:
+                    map.reset();
+                    map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+                    map.drawBombsPositions();
+                    break;
+                case sf::Keyboard::R:
+                    map.reset();
+                    map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+                    break;
+                default:
+                    break;
             }
+        }
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            // sf::Vector2i localPosition = sf::Mouse::getPosition(renderWindow);
+            // std::cout << "Mouse Pos x: " << localPosition.x << std::endl << "Mouse Pos y: " << localPosition.y << std::endl;
         }
     }
 }
@@ -132,8 +154,6 @@ void Game::setScaleValue()
     spriteScaleValue = (screenHeight - PADDING_WINDOW_Y) / TEXTURE_SIZE_Y / map.mapSizeY;
 
     padding_WindowX = screenWidth - (TEXTURE_SIZE_X * map.mapSizeX * spriteScaleValue);
-
-    std::cout << spriteScaleValue << std::endl;
 }
 
 void Game::setTileTexture(Tile* tile)
@@ -216,6 +236,9 @@ void Game::setTileTexture(Tile* tile)
         break;
     case FlagMissed:
         tile->sprite.setTexture(flagMissed);
+        break;
+    case Empty:
+        tile->sprite.setTexture(empty);
         break;
     default:
         tile->sprite.setTexture(gyarados);
@@ -336,6 +359,10 @@ void Game::loadTextures()
         errorLoadingSprite();
     }
     if (!gyarados.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE_X,4*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    {
+        errorLoadingSprite();
+    }
+    if (!empty.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE_X,4*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
     {
         errorLoadingSprite();
     }

@@ -8,6 +8,9 @@
 #pragma once
 
 #include "../myLibHeaders/Map.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Window/Window.hpp>
 
 class Game
 {
@@ -54,6 +57,7 @@ class Game
         sf::Texture caseHide;
         sf::Texture caseHover;
         sf::Texture caseBackground;
+        sf::Texture empty;
 
         // Troll
         sf::Texture gyarados;
@@ -66,7 +70,7 @@ class Game
 
         void displayTile();
 
-        void inputEvent();
+        void inputEvent(sf::RenderWindow &renderWindow);
 
         void setScaleValue();
         void setTileTexture(Tile* tile);

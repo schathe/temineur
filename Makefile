@@ -1,7 +1,7 @@
 all:
-	g++ *.cpp src/myLib/*.cpp -o main -lsfml-graphics -lsfml-window -lsfml-system -I /src/myLibHeaders/myLib.h
+	clang++ -g -std=c++20 -Wall -Wextra -pedantic *.cpp src/myLib/*.cpp -o main -lsfml-graphics -lsfml-window -lsfml-system -I /src/myLibHeaders/myLib.h
 
-run: 
+run:
 	make all
 	./main
 

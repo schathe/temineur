@@ -23,6 +23,8 @@ class Map
         Map(float spriteScaleValue = 3.3, int paddingX = 50, int paddingY = 200);
         ~Map();
 
+        void drawBombsPositions();
+
         void show();
         void reset();
 

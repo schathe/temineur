@@ -7,9 +7,9 @@
 
 #include "../myLibHeaders/Tile.hpp"
 
-Tile::Tile(int x, int y): state(Hide), posX(x), posY(y), spriteValue(Empty)
+Tile::Tile(int x, int y): state(Hide), spriteValue(Empty), posX(x), posY(y)
 {
-    setValue(rand() % 28);
+    setValue(Empty);
 }
 
 Tile::~Tile()
@@ -37,7 +37,19 @@ int Tile::getPosY()
     return posY;
 }
 
-void Tile::setValue(int newValue)
+bool Tile::isBomb()
+{
+    bool isBomb = false;
+
+    if (spriteValue == Bomb)
+    {
+        return true;
+    }
+    
+    return isBomb;
+}
+
+void Tile::setValue(caseSpriteValue newValue)
 {
     spriteValue = (caseSpriteValue)newValue;
 }

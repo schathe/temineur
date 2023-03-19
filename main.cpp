@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <iostream>
 
-int main(int argc, char ** argv)
+int main()
 {
 	srand((unsigned) time(NULL));
 

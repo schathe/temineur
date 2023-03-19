@@ -6,6 +6,7 @@
 */
 
 #include "../myLibHeaders/Map.hpp"
+#include <cstdlib>
 
 Map::Map(float spriteScaleValue, int paddingX, int paddingY)
 {
@@ -24,14 +25,32 @@ Map::Map(float spriteScaleValue, int paddingX, int paddingY)
 
 Map::~Map()
 {
+    
+}
 
+void Map::drawBombsPositions()
+{
+    for (int i = 0; i < bombNumber; i++)
+    {
+        short posX = rand() % mapSizeX;
+        short posY = rand() % mapSizeY;
+
+        if (!this->tileList[posY][posX].isBomb())
+        {
+            this->tileList[posY][posX].setValue(Bomb);
+        }
+        else
+        {
+            i--;
+        }
+    }
 }
 
 void Map::show()
 {
-    for (int i = 0; i < tileList.size(); i++)
+    for (unsigned long i = 0; i < tileList.size(); i++)
     {
-        for (int j = 0; j < tileList[i].size(); j++)
+        for (unsigned long j = 0; j < tileList[i].size(); j++)
         {
             std::cout << tileList[i][j].getSpriteValue() <<  ( tileList[i][j].getSpriteValue() > 9 ?  " " : "  ") ;
         }
