@@ -11,6 +11,8 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <cstdlib>
+#include <iostream>
+#include <ostream>
 
 Game::Game()
 {
@@ -124,25 +126,86 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
 
         if (event.type == sf::Event::KeyPressed)
         {
-            switch (event.key.code) 
+            switch (event.key.code)
             {
                 case sf::Keyboard::Space:
+                    if (gameStateValue == Stop)
+                    {
+                        setGameState(Run);
+                    }
                     map.reset();
                     map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
                     map.drawBombsPositions();
+                    map.changeCasesValues();
                     break;
                 case sf::Keyboard::R:
+                    setGameState(Stop);
                     map.reset();
                     map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
                     break;
+                // Actually don't work
+                case sf::Keyboard::Q:
+                    map.changeMapSize();
                 default:
                     break;
             }
         }
+        
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            // sf::Vector2i localPosition = sf::Mouse::getPosition(renderWindow);
-            // std::cout << "Mouse Pos x: " << localPosition.x << std::endl << "Mouse Pos y: " << localPosition.y << std::endl;
+            // mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / 32 / spriteScaleValue;
+            // mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / 32 / spriteScaleValue;
+            // std::cout << "Mouse Pos x: " << mousePosX << std::endl << "Mouse Pos y: " << mousePosY << std::endl;
+        }
+        
+        if (event.type == sf::Event::MouseMoved)
+        {
+/* 
+            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / 32 / spriteScaleValue;
+            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / 32 / spriteScaleValue;
+            
+            if (gameStateValue == Run)
+            {
+                if (prevMousePosX != mousePosX)
+                {
+                    if (prevMousePosX >= 0 && prevMousePosY >= 0)
+                    {
+                        if (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY)
+                        {
+                            map.tileList[prevMousePosY][prevMousePosX].setValue(Empty);
+                        }
+                    }
+                    prevMousePosX = mousePosX;
+                }
+                if (prevMousePosY != mousePosY)
+                {
+                    if (prevMousePosX >= 0 && prevMousePosY >= 0)
+                    {
+                        if (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY)
+                        {
+                            map.tileList[prevMousePosY][prevMousePosX].setValue(Empty);
+                        }
+                    }
+                    prevMousePosY = mousePosY;
+                }
+
+                if (mousePosX >= 0 && mousePosY >= 0)
+                {
+                    if (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY)
+                    {
+                        map.tileList[mousePosY][mousePosX].setValue(CaseHide);
+                    }
+                }
+                
+                if (prevMousePosX >= 0 && prevMousePosY >= 0)
+                {
+                    if (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY)
+                    {
+                        // map.tileList[prevMousePosY][prevMousePosX].setValue(Empty);
+                    }
+                }
+            }
+ */
         }
     }
 }
@@ -154,6 +217,11 @@ void Game::setScaleValue()
     spriteScaleValue = (screenHeight - PADDING_WINDOW_Y) / TEXTURE_SIZE_Y / map.mapSizeY;
 
     padding_WindowX = screenWidth - (TEXTURE_SIZE_X * map.mapSizeX * spriteScaleValue);
+}
+
+void Game::setGameState(gameState state)
+{
+    gameStateValue = state;
 }
 
 void Game::setTileTexture(Tile* tile)

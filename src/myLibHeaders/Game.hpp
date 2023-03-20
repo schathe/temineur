@@ -12,15 +12,28 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Window/Window.hpp>
 
+enum gameState
+{
+    Stop,
+    Pause,
+    Run
+};
+
 class Game
 {
     private:
+
         Map map;
+        gameState gameStateValue = Stop;
+        
         float spriteScaleValue;
         const int WIDTH = 2100, HEIGHT = 1500;
         const short PADDING_WINDOW_Y = 100;
         const short TEXTURE_SIZE_X = 32, TEXTURE_SIZE_Y = 32;
         short padding_WindowX = 300;
+
+        int mousePosX = 0, mousePosY = 0;
+        int prevMousePosX = 0, prevMousePosY = 0;
 
         /* TEXTURES OF THE GAME */
 
@@ -73,6 +86,7 @@ class Game
         void inputEvent(sf::RenderWindow &renderWindow);
 
         void setScaleValue();
+        void setGameState(gameState state);
         void setTileTexture(Tile* tile);
 
         void test();

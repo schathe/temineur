@@ -7,6 +7,7 @@
 
 #include "../myLibHeaders/Map.hpp"
 #include <cstdlib>
+#include <iostream>
 
 Map::Map(float spriteScaleValue, int paddingX, int paddingY)
 {
@@ -43,6 +44,62 @@ void Map::drawBombsPositions()
         {
             i--;
         }
+    }
+}
+
+void Map::changeCasesValues()
+{
+    int count = 0;
+
+    for (int posX = 0; posX < mapSizeX; posX++)
+    {
+        for (int posY = 0; posY < mapSizeY; posY++)
+        {
+            if (this->tileList[posY][posX].getSpriteValue() != Bomb)
+            {
+                for (int x = posX - 1; x <= posX + 1; x++)
+                {
+                    for (int y = posY -1; y <= posY + 1; y++)
+                    {
+                        if (y >= 0 && y < mapSizeY && x >= 0 && x < mapSizeX)
+                        {
+                            if (this->tileList[y][x].getSpriteValue() == Bomb)
+                            {
+                                count ++;
+                            }
+                        }
+                    }
+                }
+
+                if (count != 0)
+                {
+                    this->tileList[posY][posX].setValue((caseSpriteValue)(count + 2));
+                    count = 0;
+                }    
+            }
+        }
+    }
+}
+
+void Map::changeMapSize()
+{
+    if (mapSizeX == 15)
+    {
+        mapSizeX = 30;
+        mapSizeY = 16;
+        bombNumber = 99;
+    }
+    else if (mapSizeX == 30)
+    {
+        mapSizeX = 10;
+        mapSizeY = 10;
+        bombNumber = 10;
+    }
+    else if (mapSizeX == 10)
+    {
+        mapSizeX = 15;
+        mapSizeY = 13;
+        bombNumber = 40;
     }
 }
 

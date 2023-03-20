@@ -16,6 +16,7 @@ class Map
     public:
         std::vector<std::vector<Tile>> tileList;
         // Defaults sizes: 10/10-10 15/13-40 30/16-99 (X/Y-Bombs)
+        // !!! CANNOT DISPLAY THE FULL VERSION, THE TILES ARE TOO BIG FOR THE 30/16... !!!
         int bombNumber = 40;
         int mapSizeX = 15;
         int mapSizeY = 13;
@@ -24,6 +25,8 @@ class Map
         ~Map();
 
         void drawBombsPositions();
+        void changeCasesValues();
+        void changeMapSize();
 
         void show();
         void reset();
