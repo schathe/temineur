@@ -54,9 +54,9 @@ void Tile::setValue(caseSpriteValue newValue)
     spriteValue = (caseSpriteValue)newValue;
 }
 
-void Tile::setState(int newState)
+void Tile::setState(caseState newState)
 {
-    state = (caseState)newState;
+    state = newState;
 }
 
 void Tile::test()

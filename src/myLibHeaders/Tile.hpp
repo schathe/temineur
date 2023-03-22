@@ -15,7 +15,6 @@ enum caseState
 {
     Hide = 0,
     Hover,
-    Pressed,
     Displayed
 };
 
@@ -75,7 +74,7 @@ class Tile
         bool isBomb();
 
         void setValue(caseSpriteValue newValue = Empty);
-        void setState(int newState = 0);
+        void setState(caseState newState = Hide);
 
         void test();
 };

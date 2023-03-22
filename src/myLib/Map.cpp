@@ -85,21 +85,21 @@ void Map::changeMapSize()
 {
     if (mapSizeX == 15)
     {
-        mapSizeX = 30;
-        mapSizeY = 16;
-        bombNumber = 99;
+        this->mapSizeX = 30;
+        this->mapSizeY = 16;
+        this->bombNumber = 99;
     }
     else if (mapSizeX == 30)
     {
-        mapSizeX = 10;
-        mapSizeY = 10;
-        bombNumber = 10;
+        this->mapSizeX = 10;
+        this->mapSizeY = 10;
+        this->bombNumber = 10;
     }
     else if (mapSizeX == 10)
     {
-        mapSizeX = 15;
-        mapSizeY = 13;
-        bombNumber = 40;
+        this->mapSizeX = 15;
+        this->mapSizeY = 13;
+        this->bombNumber = 40;
     }
 }
 
