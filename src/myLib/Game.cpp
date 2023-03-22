@@ -48,7 +48,7 @@ Game::Game()
 
             // Call the game drawing function
             displayTile();
-                        
+            
             // Get every events appening on the window (click/keyboard/windows rezise/closed/...)
             inputEvent(window);
 
@@ -70,45 +70,44 @@ void Game::displayTile()
         for (unsigned long j = 0; j < map.tileList[i].size(); j++)
         {
             Tile tile = map.tileList[i][j];
+            Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
 
             caseSpriteValue spriteValue = tile.getSpriteValue();
 
-            if (spriteValue >= CaseOneColored  && spriteValue <= CaseNineColored )
+            if (tile.getState() == Hide)
             {
-                Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
-                backgroundTile.setValue(CaseBackground);
-                setTileTexture(&backgroundTile);
+                tile.setValue(CaseHide);
+                setTileTexture(&tile);
+            }
+            else if (tile.getState() == Hover)
+            {
+                tile.setValue(CaseHover);
+                setTileTexture(&tile);
+            }
+            else if (tile.getState() == Displayed)
+            {
+                if ((spriteValue >= CaseOneColored  && spriteValue <= CaseNineColored) || (spriteValue == Bomb || spriteValue == BombExploded || spriteValue == FlagMissed || spriteValue == Empty))
+                {
+                    backgroundTile.setValue(CaseBackground);
+                    setTileTexture(&backgroundTile);
+                }
+                else if (spriteValue == Flag)
+                {
+                    backgroundTile.setValue(CaseHover);
+                    setTileTexture(&backgroundTile);
+                }
+
+                setTileTexture(&tile);
+                
+            }
                 backgroundTile.sprite.setPosition(backgroundTile.getPosX(), backgroundTile.getPosY());
                 backgroundTile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
 
+                tile.sprite.setPosition(tile.getPosX(),tile.getPosY());
+                tile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
+                
                 pWindow->draw(backgroundTile.sprite);
-            }
-            else if (spriteValue == Bomb || spriteValue == BombExploded || spriteValue == FlagMissed || spriteValue == Empty)
-            {
-                Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
-                backgroundTile.setValue(CaseBackground);
-                setTileTexture(&backgroundTile);
-                backgroundTile.sprite.setPosition(backgroundTile.getPosX(), backgroundTile.getPosY());
-                backgroundTile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
-
-                pWindow->draw(backgroundTile.sprite);
-            }
-            else if (spriteValue == Flag)
-            {
-                Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
-                backgroundTile.setValue(CaseHover);
-                setTileTexture(&backgroundTile);
-                backgroundTile.sprite.setPosition(backgroundTile.getPosX(), backgroundTile.getPosY());
-                backgroundTile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
-
-                pWindow->draw(backgroundTile.sprite);
-            }
-
-            setTileTexture(&tile);
-            tile.sprite.setPosition(tile.getPosX(),tile.getPosY());
-            tile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
-            
-            pWindow->draw(tile.sprite);
+                pWindow->draw(tile.sprite);
         }
     }
 }
@@ -153,59 +152,52 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
         
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            // mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / 32 / spriteScaleValue;
-            // mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / 32 / spriteScaleValue;
-            // std::cout << "Mouse Pos x: " << mousePosX << std::endl << "Mouse Pos y: " << mousePosY << std::endl;
+            if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
+            {
+                if (map.tileList[mousePosY][mousePosX].getState() == Hover)
+                {
+                    map.tileList[mousePosY][mousePosX].setState(Displayed);
+                }
+            }
         }
         
         if (event.type == sf::Event::MouseMoved)
         {
-/* 
             mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / 32 / spriteScaleValue;
             mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / 32 / spriteScaleValue;
             
+            Tile *thisTile;
+            Tile *previousTile;
+
             if (gameStateValue == Run)
             {
-                if (prevMousePosX != mousePosX)
+                if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
                 {
-                    if (prevMousePosX >= 0 && prevMousePosY >= 0)
-                    {
-                        if (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY)
-                        {
-                            map.tileList[prevMousePosY][prevMousePosX].setValue(Empty);
-                        }
-                    }
-                    prevMousePosX = mousePosX;
-                }
-                if (prevMousePosY != mousePosY)
-                {
-                    if (prevMousePosX >= 0 && prevMousePosY >= 0)
-                    {
-                        if (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY)
-                        {
-                            map.tileList[prevMousePosY][prevMousePosX].setValue(Empty);
-                        }
-                    }
-                    prevMousePosY = mousePosY;
-                }
+                    thisTile = &map.tileList[mousePosY][mousePosX];
 
-                if (mousePosX >= 0 && mousePosY >= 0)
-                {
-                    if (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY)
+
+                    if ((prevMousePosX >= 0 && prevMousePosY >= 0) && (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY))
                     {
-                        map.tileList[mousePosY][mousePosX].setValue(CaseHide);
+                        previousTile = &map.tileList[prevMousePosY][prevMousePosX];
                     }
-                }
-                
-                if (prevMousePosX >= 0 && prevMousePosY >= 0)
-                {
-                    if (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY)
+
+                    if (thisTile->getState() == Hide)
                     {
-                        // map.tileList[prevMousePosY][prevMousePosX].setValue(Empty);
+                        thisTile->setState(Hover);
+                    }
+    
+                    if (prevMousePosY != mousePosY || prevMousePosX != mousePosX)
+                    {
+                        if (previousTile->getState() == Hover)
+                        {
+                            previousTile->setState(Hide);
+                        }
+
+                        prevMousePosX = mousePosX;
+                        prevMousePosY = mousePosY;
                     }
                 }
             }
- */
         }
     }
 }
