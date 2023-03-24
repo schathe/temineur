@@ -1,9 +1,11 @@
 /**
- * Creation date:   2022-12-12
- * Creator:         Schathe (Théo Schaffner)
- * Description:     This file is made to contain the main part of the programm, all the game activities.
- * Version:         V-1.0
-*/
+ * @file Game.cpp
+ * @author Schathe (Théo Schaffner)
+ * @brief This file is made to contain the main part of the programm, all the game activities.
+ * @date 2022-12-12
+ *
+ * @copyright Copyright (c) 2023
+ */
 
 #include "../myLibHeaders/Game.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -20,6 +22,7 @@ Game::Game()
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Démineur_V1", sf::Style::Close);
     // sf::Style::Close;    -> to block the resize of the window
     // sf::Style::Titlebar; -> to block the resize AND disable the x to close the window WITH impossibilty to alt + f4
+
     window.setPosition(sf::Vector2i(450, 200));
 
     // Set the pointer of the window to use it in functions wihout passing it throug parameters
@@ -56,6 +59,7 @@ Game::Game()
             window.display();
         }
     }
+    delete pWindow;
 }
 
 Game::~Game()
@@ -65,6 +69,7 @@ Game::~Game()
 
 void Game::displayTile()
 {
+    // Pass through all the tileList to check every Tile
     for (unsigned long i = 0; i < map.tileList.size(); i++)
     {
         for (unsigned long j = 0; j < map.tileList[i].size(); j++)
@@ -74,16 +79,19 @@ void Game::displayTile()
 
             caseSpriteValue spriteValue = tile.getSpriteValue();
 
+            // If Tile is hide, don't display the Tile depending of the value but the Hide tile sprite.
             if (tile.getState() == Hide)
             {
                 tile.setValue(CaseHide);
                 setTileTexture(&tile);
             }
+            // If Tile is hover, don't display the Tile depending of the value but the Hover tile sprite.
             else if (tile.getState() == Hover)
             {
                 tile.setValue(CaseHover);
                 setTileTexture(&tile);
             }
+            // If Tile is Displayed, dispatch depending on the Tile value and display a background on the tiles
             else if (tile.getState() == Displayed)
             {
                 if ((spriteValue >= CaseOneColored  && spriteValue <= CaseNineColored) || (spriteValue == Bomb || spriteValue == BombExploded || spriteValue == FlagMissed || spriteValue == Empty))
@@ -91,6 +99,7 @@ void Game::displayTile()
                     backgroundTile.setValue(CaseBackground);
                     setTileTexture(&backgroundTile);
                 }
+                // If tile value is Flag, keep the Hide tile background
                 else if (spriteValue == Flag)
                 {
                     backgroundTile.setValue(CaseHover);
@@ -98,14 +107,16 @@ void Game::displayTile()
                 }
 
                 setTileTexture(&tile);
-                
             }
+
+                // After all the sprites are set, display them at their right places (if there is no background, he is empty)
                 backgroundTile.sprite.setPosition(backgroundTile.getPosX(), backgroundTile.getPosY());
                 backgroundTile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
 
                 tile.sprite.setPosition(tile.getPosX(),tile.getPosY());
                 tile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
                 
+                // Draw the tiles and background on the game
                 pWindow->draw(backgroundTile.sprite);
                 pWindow->draw(tile.sprite);
         }
@@ -115,16 +126,21 @@ void Game::displayTile()
 void Game::inputEvent(sf::RenderWindow &renderWindow)
 {
     sf::Event event;
+
+    // Get the events on the game
     while (pWindow->pollEvent(event))
     {
         // Get the close window event (every event are tracked like this)
         if (event.type == sf::Event::Closed)
         {
             pWindow->close();
+            return;
         }
 
+        // Get keyboard event
         if (event.type == sf::Event::KeyPressed)
         {
+            // Switch between keyboard input
             switch (event.key.code)
             {
                 case sf::Keyboard::Space:
@@ -150,6 +166,7 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
             }
         }
         
+        // Get mouse button event
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
             if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
@@ -161,21 +178,23 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
             }
         }
         
+        // Get mouse movements event
         if (event.type == sf::Event::MouseMoved)
         {
             mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / 32 / spriteScaleValue;
             mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / 32 / spriteScaleValue;
             
-            Tile *thisTile;
-            Tile *previousTile;
+            Tile *thisTile = NULL;
+            Tile *previousTile = NULL;
 
             if (gameStateValue == Run)
             {
+                // Check the mouse is on the tiles
                 if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
                 {
                     thisTile = &map.tileList[mousePosY][mousePosX];
 
-
+                    // Check if the last mouse position was on the tiles
                     if ((prevMousePosX >= 0 && prevMousePosY >= 0) && (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY))
                     {
                         previousTile = &map.tileList[prevMousePosY][prevMousePosX];
@@ -198,6 +217,9 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
                     }
                 }
             }
+
+            delete thisTile;
+            delete previousTile;
         }
     }
 }
@@ -218,7 +240,8 @@ void Game::setGameState(gameState state)
 
 void Game::setTileTexture(Tile* tile)
 {
-    switch (tile->getSpriteValue()) {
+    switch (tile->getSpriteValue())
+    {
     case CaseHide:
         tile->sprite.setTexture(caseHide);
         break;
@@ -314,10 +337,14 @@ void Game::test()
 
 void Game::loadTextures()
 {
+    // Try to load the texture of caseHide place on the x - 0 and the y - 0 on the spriteSheat multiplied by the sprites
+    //  sizes with the sprite size on x and y
     if (!caseHide.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
     {
+        // Throw error on console if the sprite can't load
         errorLoadingSprite();
     }
+    // Try to load...
     if (!caseBackground.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
     {
         errorLoadingSprite();
@@ -430,6 +457,5 @@ void Game::loadTextures()
 
 void Game::errorLoadingSprite()
 {
-    // Display an error on the console when a texture can't be loaded
     std::cout << "error loading texture " << std::endl;
 }
