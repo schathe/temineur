@@ -52,7 +52,7 @@ void Map::drawBombsPositions()
     }
 }
 
-void Map::changeCasesValues()
+void Map::changeTilesValues()
 {
     int count = 0;
 

@@ -42,7 +42,7 @@ Game::Game()
     while (window.isOpen())
     {
         // Update game logic every 25th of a second
-        if(clock.getElapsedTime().asMilliseconds() >= 1000/25)
+        if(clock.getElapsedTime().asMilliseconds() >= 60)
         {
             clock.restart();
 
@@ -123,6 +123,35 @@ void Game::displayTile()
     }
 }
 
+void Game::discoverNeightboorTiles(Tile *tile)
+{
+    short posX = ((tile->getPosX() - (float)padding_WindowX / 2) / TEXTURE_SIZE_X / spriteScaleValue) + 1; 
+    short posY = ((tile->getPosY() - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE_Y / spriteScaleValue) + 1;
+
+    std::cout << "posX: " << posX << " posY: " << posY << std::endl;
+
+    for (short x = posX - 1; x <= posX + 1; x++)
+    {
+        for (short y = posY - 1; y <= posY + 1; y++)
+        {
+            if ((x >= 0 && x < map.mapSizeX) && (y >= 0 && y < map.mapSizeY) && !(x == posX && y == posY))
+            {
+                Tile *neightboorTile = &map.tileList[y][x];
+
+                if (neightboorTile->getState() != Displayed)
+                {
+                    neightboorTile->setState(Displayed);
+            
+                    if (neightboorTile->getSpriteValue() == Empty)
+                    {
+                        discoverNeightboorTiles(neightboorTile);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Game::inputEvent(sf::RenderWindow &renderWindow)
 {
     sf::Event event;
@@ -151,7 +180,7 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
                     map.reset();
                     map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
                     map.drawBombsPositions();
-                    map.changeCasesValues();
+                    map.changeTilesValues();
                     break;
                 case sf::Keyboard::R:
                     setGameState(Stop);
@@ -171,9 +200,15 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
         {
             if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
             {
-                if (map.tileList[mousePosY][mousePosX].getState() == Hover)
+                Tile *thisTile = &map.tileList[mousePosY][mousePosX]; 
+                if (thisTile->getState() == Hover)
                 {
-                    map.tileList[mousePosY][mousePosX].setState(Displayed);
+                    thisTile->setState(Displayed);
+
+                    if (thisTile->getSpriteValue() == Empty)
+                    {
+                        discoverNeightboorTiles(thisTile);
+                    }
                 }
             }
         }
@@ -181,14 +216,16 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
         // Get mouse movements event
         if (event.type == sf::Event::MouseMoved)
         {
-            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / 32 / spriteScaleValue;
-            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / 32 / spriteScaleValue;
+            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / TEXTURE_SIZE_X / spriteScaleValue;
+            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE_Y / spriteScaleValue;
             
-            Tile *thisTile = NULL;
-            Tile *previousTile = NULL;
+            
 
             if (gameStateValue == Run)
             {
+                Tile *thisTile = NULL;
+                Tile *previousTile = NULL;
+
                 // Check the mouse is on the tiles
                 if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
                 {
@@ -217,9 +254,6 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
                     }
                 }
             }
-
-            delete thisTile;
-            delete previousTile;
         }
     }
 }

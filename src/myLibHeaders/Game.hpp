@@ -115,6 +115,13 @@ class Game
         void displayTile();
 
         /**
+         * @brief Make every adjacent Tile from an empty tile to change state to Display
+         * 
+         * @param Tile 
+         */
+        void discoverNeightboorTiles(Tile *tile);
+
+        /**
         * @brief Take every input of the game and dispatch them depending on their source and utility
         * 
         * @param renderWindow - pass the renderWindow in parameter because the pointer is not working with the mouse getPosition

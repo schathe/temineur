@@ -31,7 +31,7 @@ class Map
         std::vector<std::vector<Tile>> tileList;
 
         // Defaults sizes: 10/10-10 15/13-40 30/16-99 (X/Y-Bombs)
-        int bombNumber = 40;
+        int bombNumber = 20;
         int mapSizeX = 15;
         int mapSizeY = 13;
 
@@ -58,7 +58,7 @@ class Map
         /**
          * @brief Take every Tile, check the 8 Tiles around and change the number value depengin on the number of bombs around.
          */
-        void changeCasesValues();
+        void changeTilesValues();
 
         /**
          * @brief Switch between map sizes
