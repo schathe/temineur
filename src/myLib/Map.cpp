@@ -21,7 +21,8 @@ Map::Map(float spriteScaleValue, int paddingX, int paddingY)
         for (int j = 0; j < mapSizeX; j++)
         {
             // Push on the ListX a Tile with the correct position on the map
-            ListX.push_back(Tile(((float)paddingX/2 + j * 32 * spriteScaleValue), ((float)paddingY/2 + i * 32 * spriteScaleValue)));
+            ListX.push_back(Tile(j, i));
+            // ListX.push_back(((float)paddingX/2 + j * 32 * spriteScaleValue), ((float)paddingY/2 + i * 32 * spriteScaleValue));
         }
 
         tileList.push_back(ListX);
@@ -115,7 +116,7 @@ void Map::changeMapSize()
 
 void Map::show()
 {
-    // Got through all Tile to display them one by one
+    // Got through all Tile to display them one by one on the console (debug purposes)
     for (unsigned long i = 0; i < tileList.size(); i++)
     {
         for (unsigned long j = 0; j < tileList[i].size(); j++)

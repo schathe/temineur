@@ -74,7 +74,7 @@ class Tile
         caseState state;
         caseSpriteValue spriteValue;
 
-        // Positions of the Tile on the window
+        // Positions of the Tile in the TileList of the map
         int posX;
         int posY;
 
@@ -86,8 +86,8 @@ class Tile
         /**
          * @brief Construct a new Tile
          * 
-         * @param x - value of the position in X on the window
-         * @param y - value of the position in Y on the window
+         * @param x - value of the position in X on the tileList of map
+         * @param y - value of the position in Y on the tileList of map
          */
         Tile(int x = 0, int y = 0);
 
@@ -111,14 +111,14 @@ class Tile
         caseSpriteValue getSpriteValue();
 
         /**
-         * @brief Get the X position of the Tile on the Window
+         * @brief Get the X position of the Tile on the tileList
          * 
          * @return posX
          */
         int getPosX();
 
         /**
-         * @brief Get the Y position of the Tile on the Window
+         * @brief Get the Y position of the Tile on the tileList
          * 
          * @return posY
          */

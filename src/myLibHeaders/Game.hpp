@@ -25,7 +25,8 @@ enum gameState
 {
     Stop,
     Pause,
-    Run
+    Run,
+    Ending
 };
 
 /**
@@ -46,7 +47,7 @@ class Game
         const int WIDTH = 2100, HEIGHT = 1500, PADDING_WINDOW_Y = 100;
         int padding_WindowX = 300;
         // Constants for the Srpites sizes
-        const short TEXTURE_SIZE_X = 32, TEXTURE_SIZE_Y = 32;
+        const short TEXTURE_SIZE = 32;
         float spriteScaleValue;
 
         /**
@@ -129,6 +130,16 @@ class Game
         void inputEvent(sf::RenderWindow &renderWindow);
 
         /**
+         * @brief Take variables and calculate the position for x or y of a tile
+         * 
+         * @param position - The position from where it is in the tileList, help to calculate the right position on the Window
+         * 
+         * 
+         * @return int position calculated
+         */
+        int positionCompute(int position, int padding);
+
+        /**
          * @brief Set the spriteScaleValue of the Game's sprites
          */
         void setScaleValue();
@@ -159,6 +170,11 @@ class Game
          * @brief Load the texture to the project
          */
         void loadTextures();
+
+        /**
+         * @brief Load the font of the project
+         */
+        void loadFont();
 
         /**
          * @brief Display an error in the console if the sprite can't be loaded

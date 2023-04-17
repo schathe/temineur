@@ -109,11 +109,13 @@ void Game::displayTile()
                 setTileTexture(&tile);
             }
 
+                // ((float)paddingX/2 + j * 32 * spriteScaleValue), ((float)paddingY/2 + i * 32 * spriteScaleValue)
+
                 // After all the sprites are set, display them at their right places (if there is no background, he is empty)
-                backgroundTile.sprite.setPosition(backgroundTile.getPosX(), backgroundTile.getPosY());
+                backgroundTile.sprite.setPosition(positionCompute(backgroundTile.getPosX(), padding_WindowX),positionCompute(backgroundTile.getPosY(), PADDING_WINDOW_Y));
                 backgroundTile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
 
-                tile.sprite.setPosition(tile.getPosX(),tile.getPosY());
+                tile.sprite.setPosition((float)padding_WindowX/2 + tile.getPosX() * TEXTURE_SIZE * spriteScaleValue,((float)PADDING_WINDOW_Y/2 + tile.getPosY() * 32 * spriteScaleValue));
                 tile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
                 
                 // Draw the tiles and background on the game
@@ -125,8 +127,11 @@ void Game::displayTile()
 
 void Game::discoverNeightboorTiles(Tile *tile)
 {
-    short posX = ((tile->getPosX() - (float)padding_WindowX / 2) / TEXTURE_SIZE_X / spriteScaleValue) + 1; 
-    short posY = ((tile->getPosY() - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE_Y / spriteScaleValue) + 1;
+    // There is a way to save space on the stack because on recusive fonctions vars are stored. 
+    // -> if not remembered, talk with valchap
+    
+    short posX = tile->getPosX(); 
+    short posY = tile->getPosY();
 
     std::cout << "posX: " << posX << " posY: " << posY << std::endl;
 
@@ -212,12 +217,23 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
                 }
             }
         }
+
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Right) || event.key.code == sf::Keyboard::F)
+        {
+            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / TEXTURE_SIZE / spriteScaleValue;
+            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE / spriteScaleValue;
+
+            if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
+            {
+                map.tileList[mousePosY][mousePosX].setValue(Flag);
+            }
+        }
         
         // Get mouse movements event
         if (event.type == sf::Event::MouseMoved)
         {
-            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / TEXTURE_SIZE_X / spriteScaleValue;
-            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE_Y / spriteScaleValue;
+            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / TEXTURE_SIZE / spriteScaleValue;
+            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE / spriteScaleValue;
             
             
 
@@ -258,13 +274,18 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
     }
 }
 
+int Game::positionCompute(int position, int padding)
+{
+    return (float)padding/2 + position * TEXTURE_SIZE * spriteScaleValue;
+}
+
 void Game::setScaleValue()
 {
     float screenHeight = pWindow->getSize().y, screenWidth = pWindow->getSize().x;
 
-    spriteScaleValue = (screenHeight - PADDING_WINDOW_Y) / TEXTURE_SIZE_Y / map.mapSizeY;
+    spriteScaleValue = (screenHeight - PADDING_WINDOW_Y) / TEXTURE_SIZE / map.mapSizeY;
 
-    padding_WindowX = screenWidth - (TEXTURE_SIZE_X * map.mapSizeX * spriteScaleValue);
+    padding_WindowX = screenWidth - (TEXTURE_SIZE * map.mapSizeX * spriteScaleValue);
 }
 
 void Game::setGameState(gameState state)
@@ -373,117 +394,125 @@ void Game::loadTextures()
 {
     // Try to load the texture of caseHide place on the x - 0 and the y - 0 on the spriteSheat multiplied by the sprites
     //  sizes with the sprite size on x and y
-    if (!caseHide.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseHide.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE,0*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         // Throw error on console if the sprite can't load
         errorLoadingSprite();
     }
     // Try to load...
-    if (!caseBackground.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseBackground.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE,0*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseHover.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseHover.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE,0*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseOneColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseOneColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE,0*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseTwoColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseTwoColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE,0*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseThreeColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE_X,0*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseThreeColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE,0*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseFourColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,1*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseFourColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE,1*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseFiveColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE_X,1*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseFiveColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE,1*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseSixColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE_X,1*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseSixColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE,1*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseSevenColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE_X,1*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseSevenColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE,1*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseEightColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE_X,1*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseEightColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE,1*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!caseNineColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE_X,1*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!caseNineColored.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE,1*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!zero.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,2*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!zero.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE,2*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!one.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE_X,2*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!one.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE,2*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!two.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE_X,2*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!two.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE,2*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!three.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE_X,2*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!three.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE,2*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!four.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE_X,2*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!four.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE,2*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!five.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE_X,2*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!five.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE,2*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!six.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,3*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!six.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE,3*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!seven.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE_X,3*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!seven.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE,3*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!eight.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE_X,3*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!eight.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE,3*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!nine.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE_X,3*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!nine.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE,3*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!bomb.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE_X,3*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!bomb.loadFromFile("src/img/spriteSheet.png", sf::IntRect(4*TEXTURE_SIZE,3*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!bombExploded.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE_X,3*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!bombExploded.loadFromFile("src/img/spriteSheet.png", sf::IntRect(5*TEXTURE_SIZE,3*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!flag.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE_X,4*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!flag.loadFromFile("src/img/spriteSheet.png", sf::IntRect(0*TEXTURE_SIZE,4*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!flagMissed.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE_X,4*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!flagMissed.loadFromFile("src/img/spriteSheet.png", sf::IntRect(1*TEXTURE_SIZE,4*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!gyarados.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE_X,4*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!gyarados.loadFromFile("src/img/spriteSheet.png", sf::IntRect(2*TEXTURE_SIZE,4*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
     {
         errorLoadingSprite();
     }
-    if (!empty.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE_X,4*TEXTURE_SIZE_Y,TEXTURE_SIZE_X,TEXTURE_SIZE_Y)))
+    if (!empty.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE,4*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
+    {
+        errorLoadingSprite();
+    }
+}
+
+void Game::loadFont()
+{
+    if (!font.loadFromFile("arial.ttf"))
     {
         errorLoadingSprite();
     }
@@ -491,5 +520,5 @@ void Game::loadTextures()
 
 void Game::errorLoadingSprite()
 {
-    std::cout << "error loading texture " << std::endl;
+    std::cout << "error loading texture or font " << std::endl;
 }
