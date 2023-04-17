@@ -91,18 +91,21 @@ void Game::displayTile()
                 tile.setValue(CaseHover);
                 setTileTexture(&tile);
             }
+            // If Tile is Flagged, display a background as the hover and a flag in front.
+            else if (tile.getState() == Flagged)
+            {
+                backgroundTile.setValue(CaseHover);
+                setTileTexture(&backgroundTile);
+
+                tile.setValue(Flag);
+                setTileTexture(&tile);
+            }
             // If Tile is Displayed, dispatch depending on the Tile value and display a background on the tiles
             else if (tile.getState() == Displayed)
             {
                 if ((spriteValue >= CaseOneColored  && spriteValue <= CaseNineColored) || (spriteValue == Bomb || spriteValue == BombExploded || spriteValue == FlagMissed || spriteValue == Empty))
                 {
                     backgroundTile.setValue(CaseBackground);
-                    setTileTexture(&backgroundTile);
-                }
-                // If tile value is Flag, keep the Hide tile background
-                else if (spriteValue == Flag)
-                {
-                    backgroundTile.setValue(CaseHover);
                     setTileTexture(&backgroundTile);
                 }
 
@@ -220,12 +223,20 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Right) || event.key.code == sf::Keyboard::F)
         {
-            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / TEXTURE_SIZE / spriteScaleValue;
-            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE / spriteScaleValue;
-
             if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
             {
-                map.tileList[mousePosY][mousePosX].setValue(Flag);
+                Tile *tile = &map.tileList[mousePosY][mousePosX];
+                if (tile->getState() == Hover)
+                {
+                    // Change tile value
+                    // TODO !!!! Change the gestion of the flag, like this it will just drop the real value of the tile, 
+                    //  make it to be a state of the tile
+                    tile->setState(Flagged);
+                }
+                else if (tile->getState() == Flagged)
+                {
+                    tile->setState(Hover);
+                }
             }
         }
         

@@ -23,7 +23,8 @@ enum caseState
 {
     Hide = 0,
     Hover,
-    Displayed
+    Displayed,
+    Flagged
 };
 
 /**
