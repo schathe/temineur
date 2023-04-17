@@ -33,7 +33,7 @@ Game::Game()
     loadTextures();
 
     // Fill the map with the map constructor wich fill it with fresh tiles
-    map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+    map = Map();
     
     // Start of a clock to prevent the programm to do to much things and probably save some of the memory leack
     sf::Clock clock;
@@ -183,14 +183,14 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
                         setGameState(Run);
                     }
                     map.reset();
-                    map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+                    map = Map();
                     map.drawBombsPositions();
                     map.changeTilesValues();
                     break;
                 case sf::Keyboard::R:
                     setGameState(Stop);
                     map.reset();
-                    map = Map(spriteScaleValue, padding_WindowX, PADDING_WINDOW_Y);
+                    map = Map();
                     break;
                 // Actually don't work
                 case sf::Keyboard::Q:
@@ -505,14 +505,6 @@ void Game::loadTextures()
         errorLoadingSprite();
     }
     if (!empty.loadFromFile("src/img/spriteSheet.png", sf::IntRect(3*TEXTURE_SIZE,4*TEXTURE_SIZE,TEXTURE_SIZE,TEXTURE_SIZE)))
-    {
-        errorLoadingSprite();
-    }
-}
-
-void Game::loadFont()
-{
-    if (!font.loadFromFile("arial.ttf"))
     {
         errorLoadingSprite();
     }

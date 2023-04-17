@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <iostream>
 
-Map::Map(float spriteScaleValue, int paddingX, int paddingY)
+Map::Map()
 {
     // Start the list with the Y to have a 2D representation of the list
     for (int i = 0; i < mapSizeY; i++)

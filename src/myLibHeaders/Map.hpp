@@ -43,7 +43,7 @@ class Map
          * @param paddingX - take the padding between the game map end the window on X
          * @param paddingY - take the padding between the game map end the window on Y
          */
-        Map(float spriteScaleValue = 3.3, int paddingX = 50, int paddingY = 200);
+        Map();
 
         /**
          * @brief Destroy the Map
