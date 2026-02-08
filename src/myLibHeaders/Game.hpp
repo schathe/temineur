@@ -44,7 +44,7 @@ class Game
         gameState gameStateValue = Stop;
 
         // Constants and variable for the Window
-        const int WIDTH = 2100, HEIGHT = 1500, PADDING_WINDOW_Y = 100;
+        const int WIDTH = 1900, HEIGHT = 1000, PADDING_WINDOW_Y = 100;
         int padding_WindowX = 300;
         // Constants for the Srpites sizes
         const short TEXTURE_SIZE = 32;
