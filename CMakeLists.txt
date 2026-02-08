@@ -18,7 +18,7 @@ find_package(SFML 2.5 COMPONENTS window graphics system REQUIRED)
 add_executable(Temineur ${INCLUDE} ${SRC} main.cpp)
 
 add_custom_command(
-    TARGET ${PROJECT_NAME}
+    TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_SOURCE_DIR}/src/img $<TARGET_FILE_DIR:${PROJECT_NAME}>/src/img
             COMMENT "Copying assets directory to output directory"
