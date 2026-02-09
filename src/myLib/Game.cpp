@@ -16,17 +16,17 @@
 #include <iostream>
 #include <ostream>
 
-Game::Game()
+Game::Game() : 
+gameStateValue(Stop), 
+PADDING_WINDOW_Y(100), 
+WIDTH(sf::VideoMode::getDesktopMode().width), 
+HEIGHT(sf::VideoMode::getDesktopMode().height - 200)
 {
     // Creation of the window with all the predefined parameters
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "Démineur_V1", sf::Style::Close);
-    // sf::Style::Close;    -> to block the resize of the window
-    // sf::Style::Titlebar; -> to block the resize AND disable the x to close the window WITH impossibilty to alt + f4
+    window.create(sf::VideoMode(WIDTH, HEIGHT), "Demineur_V1", sf::Style::Default);
 
-    window.setPosition(sf::Vector2i(450, 200));
-
-    // Set the pointer of the window to use it in functions wihout passing it throug parameters
-    pWindow = &window;
+    // Force the window to be on the top left corner.
+    window.setPosition(sf::Vector2i(0, 0));
 
     // Call the setup functions 
     setScaleValue();
@@ -35,10 +35,19 @@ Game::Game()
     // Fill the map with the map constructor wich fill it with fresh tiles
     map = Map();
     
+    run();
+}
+
+Game::~Game()
+{
+    
+}
+
+void Game::run()
+{
     // Start of a clock to prevent the programm to do to much things and probably save some of the memory leack
     sf::Clock clock;
 
-    // Main loop of the program
     while (window.isOpen())
     {
         // Update game logic every 25th of a second
@@ -53,18 +62,12 @@ Game::Game()
             displayTile();
             
             // Get every events appening on the window (click/keyboard/windows rezise/closed/...)
-            inputEvent(window);
+            inputEvent();
 
             // Display the window wich have every sprites on it, need to be the last line of code of the main loop !!
             window.display();
         }
     }
-    delete pWindow;
-}
-
-Game::~Game()
-{
-    
 }
 
 void Game::displayTile()
@@ -122,8 +125,8 @@ void Game::displayTile()
                 tile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
                 
                 // Draw the tiles and background on the game
-                pWindow->draw(backgroundTile.sprite);
-                pWindow->draw(tile.sprite);
+                window.draw(backgroundTile.sprite);
+                window.draw(tile.sprite);
         }
     }
 }
@@ -136,7 +139,8 @@ void Game::discoverNeightboorTiles(Tile *tile)
     short posX = tile->getPosX(); 
     short posY = tile->getPosY();
 
-    std::cout << "posX: " << posX << " posY: " << posY << std::endl;
+    // Debug for the tiles checked
+    // std::cout << "posX: " << posX << " posY: " << posY << std::endl;
 
     for (short x = posX - 1; x <= posX + 1; x++)
     {
@@ -160,17 +164,17 @@ void Game::discoverNeightboorTiles(Tile *tile)
     }
 }
 
-void Game::inputEvent(sf::RenderWindow &renderWindow)
+void Game::inputEvent()
 {
     sf::Event event;
 
     // Get the events on the game
-    while (pWindow->pollEvent(event))
+    while (window.pollEvent(event))
     {
         // Get the close window event (every event are tracked like this)
         if (event.type == sf::Event::Closed)
         {
-            pWindow->close();
+            window.close();
             return;
         }
 
@@ -229,7 +233,7 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
                 if (tile->getState() == Hover)
                 {
                     // Change tile value
-                    // TODO !!!! Change the gestion of the flag, like this it will just drop the real value of the tile, 
+                    // TODO !!!! Change the management of the flag, like this it will just drop the real value of the tile, 
                     //  make it to be a state of the tile
                     tile->setState(Flagged);
                 }
@@ -243,8 +247,8 @@ void Game::inputEvent(sf::RenderWindow &renderWindow)
         // Get mouse movements event
         if (event.type == sf::Event::MouseMoved)
         {
-            mousePosX = (sf::Mouse::getPosition(renderWindow).x - (float)padding_WindowX / 2) / TEXTURE_SIZE / spriteScaleValue;
-            mousePosY = (sf::Mouse::getPosition(renderWindow).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE / spriteScaleValue;
+            mousePosX = (sf::Mouse::getPosition(window).x - (float)padding_WindowX / 2) / TEXTURE_SIZE / spriteScaleValue;
+            mousePosY = (sf::Mouse::getPosition(window).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE / spriteScaleValue;
             
             
 
@@ -292,7 +296,7 @@ int Game::positionCompute(int position, int padding)
 
 void Game::setScaleValue()
 {
-    float screenHeight = pWindow->getSize().y, screenWidth = pWindow->getSize().x;
+    float screenHeight = window.getSize().y, screenWidth = window.getSize().x;
 
     spriteScaleValue = (screenHeight - PADDING_WINDOW_Y) / TEXTURE_SIZE / map.mapSizeY;
 

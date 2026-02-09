@@ -39,12 +39,15 @@ class Game
     private:
         /* VARIABLES OF THE GAME */
 
+        // Render window of the game
+        sf::RenderWindow window;
+
         Map map;
         // Set the gameStateValue to stop, because the game can't be running without actions of the user
-        gameState gameStateValue = Stop;
+        gameState gameStateValue;
 
         // Constants and variable for the Window
-        const int WIDTH = 1900, HEIGHT = 1000, PADDING_WINDOW_Y = 100;
+        const int WIDTH, HEIGHT, PADDING_WINDOW_Y;
         int padding_WindowX = 300;
         // Constants for the Srpites sizes
         const short TEXTURE_SIZE = 32;
@@ -107,8 +110,10 @@ class Game
          */
         ~Game();
 
-
-        sf::RenderWindow* pWindow;
+        /**
+         * @brief Run the game
+         */
+        void run();
 
         /**
         * @brief Function that go through the tileList and display every Tile depending of their value
@@ -124,10 +129,8 @@ class Game
 
         /**
         * @brief Take every input of the game and dispatch them depending on their source and utility
-        * 
-        * @param renderWindow - pass the renderWindow in parameter because the pointer is not working with the mouse getPosition
         */
-        void inputEvent(sf::RenderWindow &renderWindow);
+        void inputEvent();
 
         /**
          * @brief Take variables and calculate the position for x or y of a tile
