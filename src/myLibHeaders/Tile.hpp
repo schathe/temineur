@@ -60,7 +60,6 @@ enum caseSpriteValue
     FlagMissed,
     Gyarados,
     Empty
-    
 };
 
 /**
@@ -79,11 +78,10 @@ class Tile
         int posX;
         int posY;
 
-
-    public:
         // Sprite of the Tile, in public to be able to change it easily in the game file
         sf::Sprite sprite;
 
+    public:
         /**
          * @brief Construct a new Tile
          * 
@@ -112,6 +110,20 @@ class Tile
         caseSpriteValue getSpriteValue();
 
         /**
+        * @brief Set a new value to the Tile
+        * 
+        * @param newValue - (default Empty)
+        */
+        void setValue(caseSpriteValue newValue = Empty);
+
+        /**
+         * @brief Set a new state to the Tile
+         * 
+         * @param newState - (default Hide)
+         */
+        void setState(caseState newState = Hide);
+
+        /**
          * @brief Get the X position of the Tile on the tileList
          * 
          * @return posX
@@ -126,18 +138,11 @@ class Tile
         int getPosY();
 
         /**
-        * @brief Set a new value to the Tile
-        * 
-        * @param newValue - (default Empty)
-        */
-        void setValue(caseSpriteValue newValue = Empty);
-
-        /**
-         * @brief Set a new state to the Tile
+         * @brief Get the Sprite of the Tile
          * 
-         * @param newState - (default Hide)
+         * @return sprite
          */
-        void setState(caseState newState = Hide);
+        sf::Sprite* getSprite();
 
         /**
          * @brief Check if the actual Tile is a bomb

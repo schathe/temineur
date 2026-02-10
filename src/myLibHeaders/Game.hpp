@@ -43,12 +43,14 @@ class Game
         sf::RenderWindow window;
 
         Map map;
+
         // Set the gameStateValue to stop, because the game can't be running without actions of the user
         gameState gameStateValue;
 
         // Constants and variable for the Window
         const int WIDTH, HEIGHT, PADDING_WINDOW_Y;
-        int padding_WindowX = 300;
+        int padding_window_x = 300;
+        
         // Constants for the Srpites sizes
         const short TEXTURE_SIZE = 32;
         float spriteScaleValue;
@@ -109,6 +111,11 @@ class Game
          * @brief Destroy the Game
          */
         ~Game();
+
+        /**
+         * @brief Initialize the game
+         */
+        void init();
 
         /**
          * @brief Run the game

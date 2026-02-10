@@ -15,6 +15,8 @@ int main()
 	srand((unsigned) time(NULL));
 
     Game game;
+    game.init();
+    game.run();
 
     return 0;
 }

@@ -51,6 +51,11 @@ void Tile::setState(caseState newState)
     state = newState;
 }
 
+sf::Sprite* Tile::getSprite()
+{
+    return &sprite;
+}
+
 bool Tile::isBomb()
 {
     bool isBomb = false;

@@ -21,10 +21,7 @@
 class Map
 {
     private:
-
-    public:
         /* VARIABLES OF THE MAP */
-
         /**
          * @brief 2D list with the objectif to stock all the Tile placed on their location on the window depending on their map position
          */
@@ -35,7 +32,7 @@ class Map
         int mapSizeX = 15;
         int mapSizeY = 13;
 
-
+    public:
         /**
          * @brief Construct a new Map
          * 
@@ -49,6 +46,31 @@ class Map
          * @brief Destroy the Map
          */
         ~Map();
+
+        /* Getters / Setters */
+        /**
+         * @brief Get the Tile on the position of the mouse
+         * 
+         * @return Tile on x, y
+         */
+        Tile getTile(int x, int y);
+
+        /**
+         * @brief Get the Tile on the position of the mouse by reference
+         * 
+         * @return Tile* on x, y
+         */
+        Tile& getTileRef(int x, int y);
+
+        /**
+         * @brief Get the X Size of the map
+         */
+        int getXSize();
+
+        /**
+         * @brief Get the Y Size of the map
+         */
+        int getYSize();
 
         /**
          * @brief Randomly draw the bombs position and modify the value of the Tile
@@ -74,7 +96,6 @@ class Map
          * @brief Empty the list to reset or stop the game
          */
         void reset();
-
 
         /**
          * @brief Display every informations of the map

@@ -34,6 +34,26 @@ Map::~Map()
     
 }
 
+Tile Map::getTile(int x, int y)
+{
+    return tileList[y][x];
+}
+
+Tile& Map::getTileRef(int x, int y)
+{
+    return tileList[y][x];
+}
+
+int Map::getXSize()
+{
+    return mapSizeX;
+}
+
+int Map::getYSize()
+{
+    return mapSizeY;
+}
+
 void Map::drawBombsPositions()
 {
     for (int i = 0; i < bombNumber; i++)

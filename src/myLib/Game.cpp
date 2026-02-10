@@ -18,29 +18,32 @@
 
 Game::Game() : 
 gameStateValue(Stop), 
-PADDING_WINDOW_Y(100), 
+PADDING_WINDOW_Y(100),
 WIDTH(sf::VideoMode::getDesktopMode().width), 
 HEIGHT(sf::VideoMode::getDesktopMode().height - 200)
 {
-    // Creation of the window with all the predefined parameters
-    window.create(sf::VideoMode(WIDTH, HEIGHT), "Demineur_V1", sf::Style::Default);
-
-    // Force the window to be on the top left corner.
-    window.setPosition(sf::Vector2i(0, 0));
-
-    // Call the setup functions 
-    setScaleValue();
-    loadTextures();
-
-    // Fill the map with the map constructor wich fill it with fresh tiles
-    map = Map();
     
-    run();
 }
 
 Game::~Game()
 {
     
+}
+
+void Game::init()
+{
+    // Creation of the window with all the predefined parameters
+    this->window.create(sf::VideoMode(WIDTH, HEIGHT), "Demineur_V1", sf::Style::Default);
+
+    // Force the window to be on the top left corner.
+    this->window.setPosition(sf::Vector2i(0, 0));
+
+    // Fill the map with the map constructor wich fill it with fresh tiles
+    // this->map = Map();
+
+    // Call the setup functions 
+    setScaleValue();
+    loadTextures();
 }
 
 void Game::run()
@@ -56,7 +59,7 @@ void Game::run()
             clock.restart();
 
             // Clear the window before doing anything with the sprites
-            window.clear();
+            this->window.clear();
 
             // Call the game drawing function
             displayTile();
@@ -73,11 +76,11 @@ void Game::run()
 void Game::displayTile()
 {
     // Pass through all the tileList to check every Tile
-    for (unsigned long i = 0; i < map.tileList.size(); i++)
+    for (unsigned long j = 0; j < map.getYSize(); j++)
     {
-        for (unsigned long j = 0; j < map.tileList[i].size(); j++)
+        for (unsigned long i = 0; i < map.getXSize(); i++)
         {
-            Tile tile = map.tileList[i][j];
+            Tile tile = map.getTile(i, j);
             Tile backgroundTile = Tile(tile.getPosX(), tile.getPosY());
 
             caseSpriteValue spriteValue = tile.getSpriteValue();
@@ -118,15 +121,15 @@ void Game::displayTile()
                 // ((float)paddingX/2 + j * 32 * spriteScaleValue), ((float)paddingY/2 + i * 32 * spriteScaleValue)
 
                 // After all the sprites are set, display them at their right places (if there is no background, he is empty)
-                backgroundTile.sprite.setPosition(positionCompute(backgroundTile.getPosX(), padding_WindowX),positionCompute(backgroundTile.getPosY(), PADDING_WINDOW_Y));
-                backgroundTile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
+                backgroundTile.getSprite()->setPosition(positionCompute(backgroundTile.getPosX(), padding_window_x),positionCompute(backgroundTile.getPosY(), PADDING_WINDOW_Y));
+                backgroundTile.getSprite()->scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
 
-                tile.sprite.setPosition((float)padding_WindowX/2 + tile.getPosX() * TEXTURE_SIZE * spriteScaleValue,((float)PADDING_WINDOW_Y/2 + tile.getPosY() * 32 * spriteScaleValue));
-                tile.sprite.scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
+                tile.getSprite()->setPosition((float)padding_window_x/2 + tile.getPosX() * TEXTURE_SIZE * spriteScaleValue,((float)PADDING_WINDOW_Y/2 + tile.getPosY() * 32 * spriteScaleValue));
+                tile.getSprite()->scale(sf::Vector2f(spriteScaleValue, spriteScaleValue));
                 
                 // Draw the tiles and background on the game
-                window.draw(backgroundTile.sprite);
-                window.draw(tile.sprite);
+                window.draw(*backgroundTile.getSprite());
+                window.draw(*tile.getSprite());
         }
     }
 }
@@ -146,9 +149,9 @@ void Game::discoverNeightboorTiles(Tile *tile)
     {
         for (short y = posY - 1; y <= posY + 1; y++)
         {
-            if ((x >= 0 && x < map.mapSizeX) && (y >= 0 && y < map.mapSizeY) && !(x == posX && y == posY))
+            if ((x >= 0 && x < map.getXSize()) && (y >= 0 && y < map.getYSize()) && !(x == posX && y == posY))
             {
-                Tile *neightboorTile = &map.tileList[y][x];
+                Tile *neightboorTile = &map.getTileRef(x, y);
 
                 if (neightboorTile->getState() != Displayed)
                 {
@@ -210,9 +213,9 @@ void Game::inputEvent()
         // Get mouse button event
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
+            if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.getXSize() && mousePosY < map.getYSize()))
             {
-                Tile *thisTile = &map.tileList[mousePosY][mousePosX]; 
+                Tile *thisTile = &map.getTileRef(mousePosX, mousePosY); 
                 if (thisTile->getState() == Hover)
                 {
                     thisTile->setState(Displayed);
@@ -227,9 +230,9 @@ void Game::inputEvent()
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Right) || event.key.code == sf::Keyboard::F)
         {
-            if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
+            if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.getXSize() && mousePosY < map.getYSize()))
             {
-                Tile *tile = &map.tileList[mousePosY][mousePosX];
+                Tile *tile = &map.getTileRef(mousePosX, mousePosY);
                 if (tile->getState() == Hover)
                 {
                     // Change tile value
@@ -247,7 +250,7 @@ void Game::inputEvent()
         // Get mouse movements event
         if (event.type == sf::Event::MouseMoved)
         {
-            mousePosX = (sf::Mouse::getPosition(window).x - (float)padding_WindowX / 2) / TEXTURE_SIZE / spriteScaleValue;
+            mousePosX = (sf::Mouse::getPosition(window).x - (float)padding_window_x / 2) / TEXTURE_SIZE / spriteScaleValue;
             mousePosY = (sf::Mouse::getPosition(window).y - (float)PADDING_WINDOW_Y / 2) / TEXTURE_SIZE / spriteScaleValue;
             
             
@@ -258,14 +261,14 @@ void Game::inputEvent()
                 Tile *previousTile = NULL;
 
                 // Check the mouse is on the tiles
-                if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.mapSizeX && mousePosY < map.mapSizeY))
+                if ((mousePosX >= 0 && mousePosY >= 0) && (mousePosX < map.getXSize() && mousePosY < map.getYSize()))
                 {
-                    thisTile = &map.tileList[mousePosY][mousePosX];
+                    thisTile = &map.getTileRef(mousePosX, mousePosY);
 
                     // Check if the last mouse position was on the tiles
-                    if ((prevMousePosX >= 0 && prevMousePosY >= 0) && (prevMousePosX < map.mapSizeX && prevMousePosY < map.mapSizeY))
+                    if ((prevMousePosX >= 0 && prevMousePosY >= 0) && (prevMousePosX < map.getXSize() && prevMousePosY < map.getYSize()))
                     {
-                        previousTile = &map.tileList[prevMousePosY][prevMousePosX];
+                        previousTile = &map.getTileRef(prevMousePosX, prevMousePosY);
                     }
 
                     if (thisTile->getState() == Hide)
@@ -296,11 +299,9 @@ int Game::positionCompute(int position, int padding)
 
 void Game::setScaleValue()
 {
-    float screenHeight = window.getSize().y, screenWidth = window.getSize().x;
+    spriteScaleValue = (window.getSize().y - PADDING_WINDOW_Y) / TEXTURE_SIZE / map.getYSize();
 
-    spriteScaleValue = (screenHeight - PADDING_WINDOW_Y) / TEXTURE_SIZE / map.mapSizeY;
-
-    padding_WindowX = screenWidth - (TEXTURE_SIZE * map.mapSizeX * spriteScaleValue);
+    padding_window_x = window.getSize().x - (TEXTURE_SIZE * map.getXSize() * spriteScaleValue);
 }
 
 void Game::setGameState(gameState state)
@@ -313,88 +314,88 @@ void Game::setTileTexture(Tile* tile)
     switch (tile->getSpriteValue())
     {
     case CaseHide:
-        tile->sprite.setTexture(caseHide);
+        tile->getSprite()->setTexture(caseHide);
         break;
     case CaseBackground:
-        tile->sprite.setTexture(caseBackground);
+        tile->getSprite()->setTexture(caseBackground);
         break;
     case CaseHover:
-        tile->sprite.setTexture(caseHover);
+        tile->getSprite()->setTexture(caseHover);
         break;
     case CaseOneColored:
-        tile->sprite.setTexture(caseOneColored);
+        tile->getSprite()->setTexture(caseOneColored);
         break;
     case CaseTwoColored:
-        tile->sprite.setTexture(caseTwoColored);
+        tile->getSprite()->setTexture(caseTwoColored);
         break;
     case CaseThreeColored:
-        tile->sprite.setTexture(caseThreeColored);
+        tile->getSprite()->setTexture(caseThreeColored);
         break;
     case CaseFourColored:
-        tile->sprite.setTexture(caseFourColored);
+        tile->getSprite()->setTexture(caseFourColored);
         break;
     case CaseFiveColored:
-        tile->sprite.setTexture(caseFiveColored);
+        tile->getSprite()->setTexture(caseFiveColored);
         break;
     case CaseSixColored:
-        tile->sprite.setTexture(caseSixColored);
+        tile->getSprite()->setTexture(caseSixColored);
         break;
     case CaseSevenColored:
-        tile->sprite.setTexture(caseSevenColored);
+        tile->getSprite()->setTexture(caseSevenColored);
         break;
     case CaseEightColored:
-        tile->sprite.setTexture(caseEightColored);
+        tile->getSprite()->setTexture(caseEightColored);
         break;
     case CaseNineColored:
-        tile->sprite.setTexture(caseNineColored);
+        tile->getSprite()->setTexture(caseNineColored);
         break;
     case Zero:
-        tile->sprite.setTexture(zero);
+        tile->getSprite()->setTexture(zero);
         break;
     case One:
-        tile->sprite.setTexture(one);
+        tile->getSprite()->setTexture(one);
         break;
     case Two:
-        tile->sprite.setTexture(two);
+        tile->getSprite()->setTexture(two);
         break;
     case Three:
-        tile->sprite.setTexture(three);
+        tile->getSprite()->setTexture(three);
         break;
     case Four:
-        tile->sprite.setTexture(four);
+        tile->getSprite()->setTexture(four);
         break;
     case Five:
-        tile->sprite.setTexture(five);
+        tile->getSprite()->setTexture(five);
         break;
     case Six:
-        tile->sprite.setTexture(six);
+        tile->getSprite()->setTexture(six);
         break;
     case Seven:
-        tile->sprite.setTexture(seven);
+        tile->getSprite()->setTexture(seven);
         break;
     case Eight:
-        tile->sprite.setTexture(eight);
+        tile->getSprite()->setTexture(eight);
         break;
     case Nine:
-        tile->sprite.setTexture(nine);
+        tile->getSprite()->setTexture(nine);
         break;
     case Bomb:
-        tile->sprite.setTexture(bomb);
+        tile->getSprite()->setTexture(bomb);
         break;
     case BombExploded:
-        tile->sprite.setTexture(bombExploded);
+        tile->getSprite()->setTexture(bombExploded);
         break;
     case Flag:
-        tile->sprite.setTexture(flag);
+        tile->getSprite()->setTexture(flag);
         break;
     case FlagMissed:
-        tile->sprite.setTexture(flagMissed);
+        tile->getSprite()->setTexture(flagMissed);
         break;
     case Empty:
-        tile->sprite.setTexture(empty);
+        tile->getSprite()->setTexture(empty);
         break;
     default:
-        tile->sprite.setTexture(gyarados);
+        tile->getSprite()->setTexture(gyarados);
     }
 }
 
@@ -402,7 +403,7 @@ void Game::test()
 {
     // Use all the test fucntions of the objects (only use it on one entity)
     map.test();
-    map.tileList[0][0].test();
+    map.getTile(0, 0).test();
 }
 
 void Game::loadTextures()
